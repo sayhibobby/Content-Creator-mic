@@ -1,0 +1,60 @@
+-- FunkyFriday Script with Content Creator Mic
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Load the game assets (music, animations, etc.)
+local music = game:GetService("SoundService"):LoadLocalSound("rbxassetid://123456789") -- Replace with the actual asset ID
+local micAnimation = ReplicatedStorage.Animations:WaitForChild("mic_animation") -- Replace with the actual animation name
+
+-- Get UI components
+local gui = Players.LocalPlayer.PlayerGui:WaitForChild("FunkyFridayUI")
+local countdownFrame = gui:WaitForChild("CountdownFrame")
+local gameUI = gui:WaitForChild("GameUI")
+
+-- Initialize variables
+local score = 0
+local inGame = false
+
+-- Function to start the game
+local function StartGame()
+    if inGame then
+        return
+    end
+    inGame = true
+    
+    -- Create the player's character and set up the UI
+    local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    
+    -- Play the game music
+    music:Play()
+
+    -- Play the "mic_animation" animation
+    local animationTrack = humanoid:LoadAnimation(micAnimation)
+    animationTrack:Play()
+
+    -- Display countdown and start game UI elements
+    countdownFrame.Visible = true
+    wait(3)
+    countdownFrame.Visible = false
+    gameUI.Visible = true
+
+    -- Function to handle beat detection logic
+    local function OnBeat()
+        -- Add scoring logic here
+        score = score + 100
+        gameUI.ScoreLabel.Text = "Score: " .. tostring(score)
+    end
+    
+    -- Replace with your actual beat detection logic
+    local beatDetector = ReplicatedStorage:WaitForChild("BeatDetector")
+    beatDetector.OnBeat:Connect(OnBeat)
+end
+
+-- Call the StartGame function when a button is clicked
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        StartGame()
+    end
+end)
